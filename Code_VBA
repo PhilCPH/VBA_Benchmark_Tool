@@ -1,0 +1,925 @@
+'Anzahl an Hotels
+Const numberOfHotels = 34
+
+'Inputspalte definieren
+
+Const categoryIn = 3
+Const nameIn = 2
+
+'Outputspalte definifieren
+Const firstColOut = 2
+Const nameOut = 1
+
+'Namen der Sheets
+Const sheetHotels = "Hotels"
+Const sheetRatios = "Kennzahlen"
+Const sheetManual = "Anleitung"
+
+
+'Outputreihen definieren
+Public row(13) As Integer
+
+'Anzahl an Jahren
+Const years = 7
+
+Function hasValue(value)
+    If value <> 0 And IsNumeric(value) Then
+        hasValue = True
+    End If
+End Function
+
+Function filterAll(value, rows() As Integer, col)
+    For Each r In rows
+        If Worksheets("Calculation").Cells(r, col) = value And Worksheets("Calculation").Cells(r, col + 1) = "Ja" Then
+            filterAll = True
+        End If
+    Next r
+
+End Function
+
+Function potenzialProzent(benchmark, value, positiv, variante)
+    If variante = 1 Then
+        If positiv Then
+            potenzialProzent = Round(benchmark / value - 1, 4)
+        Else
+            potenzialProzent = Round(1 - benchmark / value, 4)
+        End If
+    ElseIf variante = 2 Then
+        If positiv Then
+            potenzialProzent = Round(1 - value / benchmark, 4)
+        Else
+            potenzialProzent = Round(value / benchmark - 1, 4)
+        End If
+    End If
+End Function
+
+Function potenzialAbsolut(benchmark, value1, value2, positiv, variante)
+    If value2 <> 0 Then
+        If variante = 1 Then
+            If positiv Then
+                potenzialAbsolut = Round(Abs(benchmark) * Abs(value2) - Abs(value1), 4)
+            Else
+                potenzialAbsolut = Round(Abs(value1) - Abs(benchmark) * Abs(value2), 4)
+            End If
+        ElseIf variante = 2 Then
+            If positiv Then
+                potenzialAbsolut = Round(Abs(value2) - Abs(value1) / Abs(benchmark), 4)
+            Else
+                potenzialAbsolut = Round(Abs(value1) / Abs(benchmark) - Abs(value2), 4)
+            End If
+        End If
+    Else
+        If positiv Then
+            potenzialAbsolut = Round(Abs(benchmark) - Abs(value1), 4)
+        Else
+            potenzialAbsolut = Round(Abs(value1) - Abs(benchmark), 4)
+        End If
+    End If
+    
+    
+End Function
+
+
+
+Sub Ratios()
+
+    'Spalte für Jahr festlegen
+
+    firstColIn = Worksheets("Calculation").Range("C2").value - 2011
+    
+
+    
+    '0 = EUR
+    '1 = Absolut
+    '2 = %
+    Dim Logisumsatz(1) As String
+    Logisumsatz(0) = 11
+    Logisumsatz(1) = 0
+    
+    Dim Speisenumsatz(1) As String
+    Speisenumsatz(0) = 12
+    Speisenumsatz(1) = 0
+    
+    Dim Getraenkeumsatz(1) As String
+    Getraenkeumsatz(0) = 13
+    Getraenkeumsatz(1) = 0
+    
+    Dim FBTotalUmsatz(1) As String
+    FBTotalUmsatz(0) = 15
+    FBTotalUmsatz(1) = 0
+    
+    Dim Umsatz(1) As String
+    Umsatz(0) = 18
+    Umsatz(1) = 0
+
+    Dim LogisLES(1) As String
+    LogisLES(0) = 19
+    LogisLES(1) = 0
+    
+    Dim SpeisenLES(1) As String
+    SpeisenLES(0) = 20
+    SpeisenLES(1) = 0
+    
+    Dim GetraenkeLES(1) As String
+    GetraenkeLES(0) = 21
+    GetraenkeLES(1) = 0
+
+    Dim FBTotalLES(1) As String
+    FBTotalLES(0) = 23
+    FBTotalLES(1) = 0
+
+    Dim Rohertrag2(1) As String
+    Rohertrag2(0) = 29
+    Rohertrag2(1) = 0
+    
+    Dim Personalkosten(1) As String
+    Personalkosten(0) = 30
+    Personalkosten(1) = 0
+    
+    Dim Instandhaltung(1) As String
+    Instandhaltung(0) = 31
+    Instandhaltung(1) = 0
+    
+    Dim Sachaufwand(1) As String
+    Sachaufwand(0) = 33
+    Sachaufwand(1) = 0
+    
+    Dim Energie(1) As String
+    Energie(0) = 34
+    Energie(1) = 0
+    
+    Dim Sachkosten(1) As String
+    Sachkosten(0) = 46
+    Sachkosten(1) = 0
+    
+    Dim GOP(1) As String
+    GOP(0) = 47
+    GOP(1) = 0
+    
+    Dim Pachten(1) As String
+    Pachten(0) = 49
+    Pachten(1) = 0
+
+    Dim MietenPachtenManagementfee(1) As String
+    MietenPachtenManagementfee(0) = 51
+    MietenPachtenManagementfee(1) = 0
+    
+    Dim EBITDA(1) As String
+    EBITDA(0) = 52
+    EBITDA(1) = 0
+    
+    Dim AFA(1) As String
+    AFA(0) = 53
+    AFA(1) = 0
+
+    Dim EBIT(1) As String
+    EBIT(0) = 54
+    EBIT(1) = 0
+    
+    Dim EBITDARAFA(1) As String
+    EBITDARAFA(0) = 62
+    EBITDARAFA(1) = 1
+
+    Dim FTE(1) As String
+    FTE(0) = 64
+    FTE(1) = 1
+
+    Dim VerfuegbareZimmer(1) As String
+    VerfuegbareZimmer(0) = 70
+    VerfuegbareZimmer(1) = 1
+
+    Dim BelegteZimmer(1) As String
+    BelegteZimmer(0) = 71
+    BelegteZimmer(1) = 1
+
+    Dim Zimmerauslastung(1) As String
+    Zimmerauslastung(0) = 72
+    Zimmerauslastung(1) = 1
+    
+    Dim Zimmerpreis(1) As String
+    Zimmerpreis(0) = 73
+    Zimmerpreis(1) = 0
+    
+    Dim REVPAR(1) As String
+    REVPAR(0) = 74
+    REVPAR(1) = 0
+    
+    Dim Bettenbelegt(1) As String
+    Bettenbelegt(0) = 78
+    Bettenbelegt(1) = 1
+
+    Dim Doppelbelegungsfaktor(1) As String
+    Doppelbelegungsfaktor(0) = 81
+    Doppelbelegungsfaktor(1) = 1
+    
+    Dim KehrwertAuslastung(1) As String
+    KehrwertAuslastung(0) = 82
+    KehrwertAuslastung(1) = 2
+
+    Dim FrontOffice(1) As String
+    FrontOffice(0) = 98
+    FrontOffice(1) = 1
+    
+    Dim Housekeeping(1) As String
+    Housekeeping(0) = 99
+    Housekeeping(1) = 1
+
+    Dim Technik(1) As String
+    Technik(0) = 103
+    Technik(1) = 1
+    
+    Dim Fluktuationsquote(1) As String
+    Fluktuationsquote(0) = 127
+    Fluktuationsquote(1) = 2
+    
+    Dim Flowthr(1) As String
+    Flowthr(0) = 138
+    Flowthr(1) = 0
+
+    
+    produktKennzahl1 = 1
+    produktKennzahl2 = 1
+    absolut = True
+    positiv = False 'Höherer Wert ist positiv/negativ
+    variante = 1
+
+    'Kennzahl auslesen
+    selectedRatio = Worksheets("Calculation").Range("A8").value
+   
+    'Kennzahl auswählen
+    If selectedRatio = "Personnel costs / sales" Then
+        Kennzahl1 = Personalkosten
+        Kennzahl2 = Umsatz
+        
+    ElseIf selectedRatio = "Maintenance / sales" Then
+        Kennzahl1 = Instandhaltung
+        Kennzahl2 = Umsatz
+
+    ElseIf selectedRatio = "Energy / sales" Then
+        Kennzahl1 = Energie
+        Kennzahl2 = Umsatz
+
+    ElseIf selectedRatio = "Material costs / sales" Then
+        Kennzahl1 = Sachkosten
+        Kennzahl2 = Umsatz
+        
+    ElseIf selectedRatio = "Material expenses / sales" Then
+        Kennzahl1 = Sachaufwand
+        Kennzahl2 = Umsatz
+
+    ElseIf selectedRatio = "Lodging LES / accommodation turnover" Then
+        Kennzahl1 = LogisLES
+        Kennzahl2 = Logisumsatz
+        
+    ElseIf selectedRatio = "(LES / sales) * (1 - utilization)" Then
+        Kennzahl1 = KehrwertAuslastung
+        Kennzahl2 = KehrwertAuslastung
+        produktKennzahl1 = 1 * 100
+        positiv = True
+        absolut = False
+
+    ElseIf selectedRatio = "Rent / lease / management fee / turnover" Then
+        Kennzahl1 = MietenPachtenManagementfee
+        Kennzahl2 = Umsatz
+        
+    ElseIf selectedRatio = "Personnel costs / available rooms" Then
+        Kennzahl1 = Personalkosten
+        Kennzahl2 = VerfuegbareZimmer
+        produktKennzahl2 = 1 / 365
+
+    ElseIf selectedRatio = "Maintenance / available rooms" Then
+        Kennzahl1 = Instandhaltung
+        Kennzahl2 = VerfuegbareZimmer
+        produktKennzahl2 = 1 / 365
+
+    ElseIf selectedRatio = "Energy / available rooms" Then
+        Kennzahl1 = Energie
+        Kennzahl2 = VerfuegbareZimmer
+        produktKennzahl2 = 1 / 365
+    
+    ElseIf selectedRatio = "Material costs / available rooms" Then
+        Kennzahl1 = Sachkosten
+        Kennzahl2 = VerfuegbareZimmer
+        produktKennzahl2 = 1 / 365
+        
+    ElseIf selectedRatio = "Personnel costs / rooms occupied" Then
+        Kennzahl1 = Personalkosten
+        Kennzahl2 = BelegteZimmer
+        produktKennzahl2 = 1 / 365
+
+    ElseIf selectedRatio = "Energy / rooms occupied" Then
+        Kennzahl1 = Energie
+        Kennzahl2 = BelegteZimmer
+        produktKennzahl2 = 1 / 365
+
+    ElseIf selectedRatio = "Material costs / available rooms" Then
+        Kennzahl1 = Sachaufwand
+        Kennzahl2 = VerfuegbareZimmer
+        produktKennzahl2 = 1 / 365
+        
+    ElseIf selectedRatio = "F&B Total LES / F&B Total Sales" Then
+        Kennzahl1 = FBTotalLES
+        Kennzahl2 = FBTotalUmsatz
+
+    ElseIf selectedRatio = "Food LES / food turnover" Then
+        Kennzahl1 = SpeisenLES
+        Kennzahl2 = Speisenumsatz
+        
+    ElseIf selectedRatio = "F&B Total LES / F&B Total Sales" Then
+        Kennzahl1 = FBTotalLES
+        Kennzahl2 = FBTotalUmsatz
+
+    ElseIf selectedRatio = "Beverages LES / beverage sales" Then
+        Kennzahl1 = GetraenkeLES
+        Kennzahl2 = Getraenkeumsatz
+
+    ElseIf selectedRatio = "Gross profit 2 / sales" Then
+        Kennzahl1 = Rohertrag2
+        Kennzahl2 = Umsatz
+        positiv = True
+        absolut = False
+
+    ElseIf selectedRatio = "GOP / sales" Then
+        Kennzahl1 = GOP
+        Kennzahl2 = Umsatz
+        positiv = True
+        absolut = False
+        
+    ElseIf selectedRatio = "EBIT / sales" Then
+        Kennzahl1 = EBIT
+        Kennzahl2 = Umsatz
+        positiv = True
+        absolut = False
+        
+    ElseIf selectedRatio = "Total F&B turnover / beds occupied" Then
+        Kennzahl1 = FBTotalUmsatz
+        Kennzahl2 = Bettenbelegt
+        positiv = True
+        produktKennzahl2 = 1 / 365
+
+    ElseIf selectedRatio = "Personnel costs / FTE" Then
+        Kennzahl1 = Personalkosten
+        Kennzahl2 = FTE
+        variante = 2
+        
+    ElseIf selectedRatio = "Turnover / FTE" Then
+        Kennzahl1 = Umsatz
+        Kennzahl2 = FTE
+        positiv = True
+        variante = 2
+
+    ElseIf selectedRatio = "Available rooms / FTE" Then
+        Kennzahl1 = VerfuegbareZimmer
+        Kennzahl2 = FTE
+        positiv = True
+        variante = 2
+        produktKennzahl1 = 1 / 365
+
+    ElseIf selectedRatio = "Occupied rooms / FTE" Then
+        Kennzahl1 = BelegteZimmer
+        Kennzahl2 = FTE
+        positiv = True
+        variante = 2
+        produktKennzahl1 = 1 / 365
+
+    ElseIf selectedRatio = "Available rooms / Front Office" Then
+        Kennzahl1 = VerfuegbareZimmer
+        Kennzahl2 = FrontOffice
+        positiv = True
+        variante = 2
+        produktKennzahl1 = 1 / 365
+    
+    ElseIf selectedRatio = "Occupied rooms / Housekeeping" Then
+        Kennzahl1 = BelegteZimmer
+        Kennzahl2 = Housekeeping
+        positiv = True
+        variante = 2
+        produktKennzahl1 = 1 / 365
+
+    ElseIf selectedRatio = "Available rooms" Then
+        Kennzahl1 = VerfuegbareZimmer
+        Kennzahl2 = Housekeeping
+        positiv = True
+        variante = 2
+        produktKennzahl1 = 1 / 365
+
+    ElseIf selectedRatio = "Available rooms / technology" Then
+        Kennzahl1 = VerfuegbareZimmer
+        Kennzahl2 = Technik
+        positiv = True
+        variante = 2
+        produktKennzahl1 = 1 / 365
+        
+    ElseIf selectedRatio = "ø room price" Then
+        Kennzahl1 = Zimmerpreis
+        Kennzahl2 = Zimmerpreis
+        positiv = True
+        
+    ElseIf selectedRatio = "ø room occupancy (%)" Then
+        Kennzahl1 = Zimmerauslastung
+        Kennzahl2 = Zimmerauslastung
+        produktKennzahl1 = 1 * 100
+
+    ElseIf selectedRatio = "REVPAR" Then
+        Kennzahl1 = REVPAR
+        Kennzahl2 = REVPAR
+        positiv = True
+        absolut = False
+
+    ElseIf selectedRatio = "Fluctuation rate" Then
+        Kennzahl1 = Fluktuationsquote
+        Kennzahl2 = Fluktuationsquote
+        absolut = False
+
+    ElseIf selectedRatio = "Sales" Then
+        Kennzahl1 = Umsatz
+        Kennzahl2 = Umsatz
+        positiv = True
+        absolut = False
+
+    ElseIf selectedRatio = "EBIT" Then
+        Kennzahl1 = EBIT
+        Kennzahl2 = EBIT
+        positiv = True
+        absolut = False
+
+    ElseIf selectedRatio = "GOP" Then
+        Kennzahl1 = GOP
+        Kennzahl2 = GOP
+        positiv = True
+        absolut = False
+        
+    ElseIf selectedRatio = "Lease Agreement - Ratio" Then
+        Kennzahl1 = EBITDARAFA
+        Kennzahl2 = Pachten
+        variante = 2
+    
+    ElseIf selectedRatio = "Doppelbelgungsfaktor" Then
+        Kennzahl1 = Doppelbelgungsfaktor
+        Kennzahl2 = Doppelbelgungsfaktor
+        positiv = True
+        absolut = False
+
+    ElseIf selectedRatio = "Leiharbeiter" Then
+        Kennzahl1 = Leiharbeiter
+        Kennzahl2 = Leiharbeiter
+        positiv = True
+        absolut = False
+        
+    ElseIf selectedRatio = "Flowthrough" Then
+        Kennzahl1 = Flowthr
+        Kennzahl2 = Flowthr
+        positiv = True
+        absolut = False
+        
+    Else
+        MsgBox ("Fehler: falsche Kennzahl ausgewählt")
+        Exit Sub
+    End If
+    
+    'Hotelauswahl
+    selectedHotel = False
+    i = 1
+    Do While selectedHotel = False
+        If Worksheets("Calculation").Range("A2").value = Worksheets(sheetHotels).Cells(i, 2).value Then
+            selectedHotel = Worksheets(sheetHotels).Cells(i, 1).value
+        ElseIf Worksheets(sheetHotels).Cells(i, 2).value = "" Then
+            MsgBox ("Fehler: kein Hotel ausgewählt")
+            Exit Sub
+        End If
+        i = i + 1
+    Loop
+    
+    'Liste löschen
+    Worksheets("Calculation").Range("B11:H17").value = Empty
+    Worksheets("Calculation").Range("A12:H17").value = Empty
+    
+    Worksheets("Calculation").Range("B14:H17").value = Empty
+    Worksheets("Calculation").Range("B12:H17").NumberFormat = "0.00"
+    
+    Worksheets("Calculation").Range("B19:H30").value = Empty
+    Worksheets("Calculation").Range("B20:H30").Style = "Fett"
+    
+    Worksheets("Calculation").Range("J1:X31").value = Empty
+    Worksheets("Calculation").Range("K2:X31").NumberFormat = "0.0"
+    Worksheets("Calculation").Range("K2:X31").Style = "Standard"
+
+    'Outputreihenwerte zuweisen
+    row(0) = 12
+    row(1) = 13
+    row(2) = 14
+    row(3) = 15
+    row(4) = 16
+    row(5) = 17
+    row(6) = 20
+    row(7) = 21
+    row(8) = 23
+    row(9) = 24
+    row(10) = 26
+    row(11) = 27
+    row(12) = 29
+    row(13) = 30
+    
+    KlassifizierungIntern = 4
+    Hoteltyp = 5
+    Vertragstyp = 6
+    Groesse = 7
+
+    'Hotelkürzel in Array speichern
+    Dim Hotels(numberOfHotels - 1) As String
+    i = 0
+    For Each g In Worksheets
+        If g.Name <> "Calculation" And g.Name <> sheetHotels And g.Name <> sheetRatios And g.Name <> sheetManual Then
+            Hotels(i) = g.Name
+            i = i + 1
+        End If
+    Next g
+    
+    'Filterkriterien speichern
+    Dim KlassifizierungInternOutRows(2) As Integer
+    Dim GroesseOutRows(2) As Integer
+    Dim HoteltypOutRows(1) As Integer
+    Dim VertragstypOutRows(1) As Integer
+
+    KlassifizierungInternOutCol = 4
+    KlassifizierungInternOutRows(0) = 2 'Smart
+    KlassifizierungInternOutRows(1) = 3 'Comfort
+    KlassifizierungInternOutRows(2) = 4 'Premium
+
+    GroesseOutCol = 7
+    GroesseOutRows(0) = 2 'Smart
+    GroesseOutRows(1) = 3 'Comfort
+    GroesseOutRows(2) = 4 'Premium
+    
+    HoteltypOutCol = 4
+    HoteltypOutRows(0) = 8 'Stadt
+    HoteltypOutRows(1) = 9 'Resort
+    
+    VertragstypOutCol = 7
+    VertragstypOutRows(0) = 8 'Management
+    VertragstypOutRows(1) = 9 'Pachtmodell
+    
+    'Filterkriterien eintragen
+    Worksheets("Calculation").Range("B2").value = Worksheets(selectedHotel).Cells(KlassifizierungIntern, categoryIn).value
+    Worksheets("Calculation").Range("B3").value = Worksheets(selectedHotel).Cells(Groesse, categoryIn).value
+    Worksheets("Calculation").Range("B4").value = Worksheets(selectedHotel).Cells(Hoteltyp, categoryIn).value
+    Worksheets("Calculation").Range("B5").value = Worksheets(selectedHotel).Cells(Vertragstyp, categoryIn).value
+    
+    'Namen der Kennzahlen eintragen und Einheiten eintragen
+    EinheitKennzahl1 = ""
+    EinheitKennzahl2 = ""
+    EinheitRatio = ""
+    
+    If Kennzahl1(1) = 0 Then
+        EinheitKennzahl1 = " [in TEUR]"
+    End If
+
+    If Kennzahl1(1) = 2 Then
+        EinheitKennzahl1 = " [in %]"
+    End If
+
+    If Kennzahl2(1) = 0 And Kennzahl1(0) <> Kennzahl2(0) Then
+        EinheitKennzahl2 = " [in TEUR]"
+    End If
+    
+    If Kennzahl1(0) <> Kennzahl2(0) Then
+        If Kennzahl1(1) = 0 And Kennzahl2(1) = 0 Then
+            EinheitRatio = " [in %]"
+        ElseIf Kennzahl1(1) = 0 And Kennzahl2(1) = 1 Then
+            EinheitRatio = " [in TEUR]"
+        ElseIf Kennzahl1(1) = 1 And Kennzahl2(1) = 0 Then
+            EinheitRatio = " [in 1/TEUR]"
+        End If
+    Else
+        EinheitRatio = EinheitKennzahl1
+    End If
+    
+    Worksheets("Calculation").Cells(row(0), nameOut).value = Worksheets(selectedHotel).Cells(Kennzahl1(0), nameIn).value + EinheitKennzahl1
+    If Kennzahl1(0) <> Kennzahl2(0) Then
+        Worksheets("Calculation").Cells(row(1), nameOut).value = Worksheets(selectedHotel).Cells(Kennzahl2(0), nameIn).value + EinheitKennzahl2
+        Worksheets("Calculation").Cells(row(2), nameOut).value = selectedRatio + EinheitRatio
+    Else
+        Worksheets("Calculation").Cells(row(2), nameOut).value = Worksheets(selectedHotel).Cells(Kennzahl1(0), nameIn).value + EinheitRatio
+    End If
+    
+    
+
+    Worksheets("Calculation").Cells(row(3), nameOut).value = "Best in Class Performance" + EinheitRatio
+    Worksheets("Calculation").Cells(row(4), nameOut).value = "Best in Class Performer"
+    Worksheets("Calculation").Cells(row(5), nameOut).value = "Median Performance" + EinheitRatio
+    
+    If EinheitKennzahl1 = " [in %]" Then
+        Worksheets("Calculation").Range("B12:H12").NumberFormat = "0.0%"
+    End If
+    
+    If EinheitRatio = " [in %]" Then
+        Worksheets("Calculation").Range("B14:H17").NumberFormat = "0.0%"
+        Worksheets("Calculation").Range("K2:X31").NumberFormat = "0.0%"
+    End If
+    
+    'Hotelwerte speichern
+    Dim hotelVar1(years - 1) As Double
+    Dim hotelVar2(years - 1) As Double
+    Dim hotelRatios(years - 1) As Double
+    
+    For y = 0 To years - 1
+               
+        If hasValue(Worksheets(selectedHotel).Cells(Kennzahl1(0), firstColIn + y).value) And hasValue(Worksheets(selectedHotel).Cells(Kennzahl2(0), firstColIn + y).value) Then
+            hotelVar1(y) = Worksheets(selectedHotel).Cells(Kennzahl1(0), firstColIn + y).value * produktKennzahl1
+            If Kennzahl1(0) <> Kennzahl2(0) Then
+                hotelVar2(y) = Worksheets(selectedHotel).Cells(Kennzahl2(0), firstColIn + y).value * produktKennzahl2
+                hotelRatios(y) = hotelVar1(y) / hotelVar2(y)
+            Else
+                hotelRatios(y) = hotelVar1(y)
+            End If
+            
+            If absolut = True Then
+                hotelRatios(y) = Abs(hotelRatios(y))
+            End If
+            
+            hotelRatios(y) = hotelRatios(y)
+            
+            
+         End If
+         
+     Next y
+     
+    'Hotelwerte mit Werten speichern, durchschnittliches und bestes Jahr berechnen
+    Dim hotelRatiosWithValues() As Double
+    
+    j = 0
+    averageYearRatio = 0
+    For y = 0 To years - 1
+        If hasValue(Worksheets(selectedHotel).Cells(Kennzahl1(0), firstColIn + y).value) And hasValue(Worksheets(selectedHotel).Cells(Kennzahl2(0), firstColIn + y).value) Then
+            ReDim Preserve hotelRatiosWithValues(j)
+            hotelRatiosWithValues(j) = hotelRatios(y)
+            averageYearRatio = averageYearRatio + hotelRatiosWithValues(j)
+            j = j + 1
+         End If
+         
+    Next y
+    
+    If positiv = True Then
+        bestYearRatio = WorksheetFunction.Max(hotelRatiosWithValues)
+    Else
+        bestYearRatio = WorksheetFunction.Min(hotelRatiosWithValues)
+    End If
+    
+    averageYearRatio = averageYearRatio / j
+
+    For y = 0 To years - 1
+
+        If hasValue(Worksheets(selectedHotel).Cells(Kennzahl1(0), firstColIn + y).value) And hasValue(Worksheets(selectedHotel).Cells(Kennzahl2(0), firstColIn + y).value) Then
+
+                       
+            
+            'Anzahl von Hotels mit Wert ermitteln
+            numberOfHotelsWithValues = 0
+            For i = 0 To numberOfHotels - 1
+            
+                'Hier könnte man schnell etwas ausgeben:
+                'Worksheets("Calculation").Cells(40 + i, 1 + y).value = Worksheets(Hotels(i)).Cells(67, firstColIn + y).value
+            
+                If hasValue(Worksheets(Hotels(i)).Cells(Kennzahl1(0), firstColIn + y).value) And hasValue(Worksheets(Hotels(i)).Cells(Kennzahl2(0), firstColIn + y).value) And filterAll(Worksheets(Hotels(i)).Cells(KlassifizierungIntern, categoryIn).value, KlassifizierungInternOutRows, KlassifizierungInternOutCol) And filterAll(Worksheets(Hotels(i)).Cells(Hoteltyp, categoryIn).value, HoteltypOutRows, HoteltypOutCol) And filterAll(Worksheets(Hotels(i)).Cells(Vertragstyp, categoryIn).value, VertragstypOutRows, VertragstypOutCol) And filterAll(Worksheets(Hotels(i)).Cells(Groesse, categoryIn).value, GroesseOutRows, GroesseOutCol) Then 'hier das gleiche wie unten
+                    '###########
+                    If ((Hotels(i) = "THW" Or Hotels(i) = "BBW") And (selectedRatio = "Speisen LES / Speisenumsatz" Or selectedRatio = "F&B Total LES / F&B Total Umsatz" Or selectedRatio = "Getränke LES / Getränkeumsatz")) _
+                    Or ((selectedRatio = "Personalkosten / FTE" Or selectedRatio = "Umsatz / FTE" Or selectedRatio = "Verfügbare Zimmer / FTE" Or selectedRatio = "Verfügbare Zimmer / Front Office" Or selectedRatio = "Verfügbare Zimmer / Technik") And (Hotels(i) = "BRA" Or Hotels(i) = "LJU")) _
+                    Or ((selectedRatio = "Personalkosten / FTE inkl. temp." Or selectedRatio = "Verfügbare Zimmer / FTE inkl. temp." Or selectedRatio = "Umsatz / FTE inkl. temp." Or selectedRatio = "F&B Total Umsatz / FTE inkl. temp." Or selectedRatio = "Belegte Zimmer / Housekeeping" Or selectedRatio = "Verfügbare Zimmer / Housekeeping") And (Hotels(i) = "BRA" Or Hotels(i) = "LJU" Or Hotels(i) = "SAW")) _
+                    Or (y = 0 And (Hotels(i) = "LEB" Or Hotels(i) = "LAM")) _
+                    Or (y = 1 And (Hotels(i) = "BRA" Or Hotels(i) = "DOI")) _
+                    Or (y = 2 And Hotels(i) = "PAW") _
+                    Or (y = 3 And (Hotels(i) = "PRW" Or Hotels(i) = "PAW")) _
+                    Then
+
+
+
+                    Else
+                        numberOfHotelsWithValues = numberOfHotelsWithValues + 1
+                    End If
+                End If
+            Next i
+            
+            If numberOfHotelsWithValues = 0 Then
+                MsgBox ("Fehler: kein Hotel entspricht den Filterkriterien")
+                Exit Sub
+            End If
+            
+            'Neues Array Hotel und Ratios erstellen, sortieren und Hotelnummer speichern
+            j = 0
+            Dim HotelsWithValues() As String
+            ReDim HotelsWithValues(numberOfHotelsWithValues - 1)
+            Dim Ratios() As Double
+            ReDim Ratios(numberOfHotelsWithValues - 1)
+            
+            For i = 0 To numberOfHotels - 1
+
+                If hasValue(Worksheets(Hotels(i)).Cells(Kennzahl1(0), firstColIn + y).value) And hasValue(Worksheets(Hotels(i)).Cells(Kennzahl2(0), firstColIn + y).value) And filterAll(Worksheets(Hotels(i)).Cells(KlassifizierungIntern, categoryIn).value, KlassifizierungInternOutRows, KlassifizierungInternOutCol) And filterAll(Worksheets(Hotels(i)).Cells(Hoteltyp, categoryIn).value, HoteltypOutRows, HoteltypOutCol) And filterAll(Worksheets(Hotels(i)).Cells(Vertragstyp, categoryIn).value, VertragstypOutRows, VertragstypOutCol) And filterAll(Worksheets(Hotels(i)).Cells(Groesse, categoryIn).value, GroesseOutRows, GroesseOutCol) Then
+                    '###########
+                    If ((Hotels(i) = "THW" Or Hotels(i) = "BBW") And (selectedRatio = "Speisen LES / Speisenumsatz" Or selectedRatio = "F&B Total LES / F&B Total Umsatz" Or selectedRatio = "Getränke LES / Getränkeumsatz")) _
+                    Or ((selectedRatio = "Personalkosten / FTE" Or selectedRatio = "Umsatz / FTE" Or selectedRatio = "Verfügbare Zimmer / FTE" Or selectedRatio = "Verfügbare Zimmer / Front Office" Or selectedRatio = "Verfügbare Zimmer / Technik") And (Hotels(i) = "BRA" Or Hotels(i) = "LJU")) _
+                    Or ((selectedRatio = "Personalkosten / FTE inkl. temp." Or selectedRatio = "Verfügbare Zimmer / FTE inkl. temp." Or selectedRatio = "Umsatz / FTE inkl. temp." Or selectedRatio = "F&B Total Umsatz / FTE inkl. temp." Or selectedRatio = "Belegte Zimmer / Housekeeping" Or selectedRatio = "Verfügbare Zimmer / Housekeeping") And (Hotels(i) = "BRA" Or Hotels(i) = "LJU" Or Hotels(i) = "SAW")) _
+                    Or (y = 0 And (Hotels(i) = "LEB" Or Hotels(i) = "LAM")) _
+                    Or (y = 1 And (Hotels(i) = "BRA" Or Hotels(i) = "DOI")) _
+                    Or (y = 2 And Hotels(i) = "PAW") _
+                    Or (y = 3 And (Hotels(i) = "PRW" Or Hotels(i) = "PAW")) _
+                    Then
+                    
+                    Else
+                        HotelsWithValues(j) = Hotels(i)
+                        
+                        If Kennzahl1(0) <> Kennzahl2(0) Then
+                            tempHotelVar1 = Worksheets(Hotels(i)).Cells(Kennzahl1(0), firstColIn + y).value * produktKennzahl1
+                            tempHotelVar2 = Worksheets(Hotels(i)).Cells(Kennzahl2(0), firstColIn + y).value * produktKennzahl2
+                        Else
+                            tempHotelVar1 = Worksheets(Hotels(i)).Cells(Kennzahl1(0), firstColIn + y).value * produktKennzahl1
+                            tempHotelVar2 = 1
+                        End If
+                        
+                        If addition1Kennzahl1 <> 0 Then
+                            tempHotelVar1 = tempHotelVar1 + Worksheets(Hotels(i)).Cells(additionKennzahl1, firstColIn + y).value * produktKennzahl1 'anpassen (auch oben bei Hotel)
+                            If addition2Kennzahl1 <> 0 Then
+                                
+                            End If
+                        End If
+                        
+                        If addition1Kennzahl2 <> 0 Then
+                            tempHotelVar1 = tempHotelVar1 + Worksheets(Hotels(i)).Cells(additionKennzahl2, firstColIn + y).value * produktKennzahl2 'anpassen (auch oben bei Hotel)
+                            If addition2Kennzahl2 <> 0 Then
+                                
+                            End If
+                        End If
+                        
+                        Ratios(j) = tempHotelVar1 / tempHotelVar2
+                        
+                        If absolut = True Then
+                            Ratios(j) = Abs(Ratios(j))
+                        End If
+                        j = j + 1
+                    End If
+                End If
+            Next i
+            
+            'Sortieren und ausgeben
+            Dim HotelsWithValuesSorted() As String
+            ReDim HotelsWithValuesSorted(numberOfHotelsWithValues - 1)
+            Dim RatiosSorted() As Double
+            ReDim RatiosSorted(numberOfHotelsWithValues - 1)
+            
+            
+            For i = 0 To numberOfHotelsWithValues - 1
+                
+                minIndex = 0
+                minValue = 1000000
+
+                For j = 0 To numberOfHotelsWithValues - 1
+                    If (Ratios(j) <> 0) And (Ratios(j) < minValue) Then
+                        minIndex = j
+                        minValue = Ratios(j)
+                    End If
+                Next j
+                
+                HotelsWithValuesSorted(i) = HotelsWithValues(minIndex)
+                RatiosSorted(i) = Ratios(minIndex)
+                Ratios(minIndex) = 0
+                           
+            Next i
+            
+            'Best in Class Hotel und Ratio
+            If numberOfHotelsWithValues > 0 Then
+                If positiv = True Then
+                    bestInClassRatio = RatiosSorted(numberOfHotelsWithValues - 1)
+                    bestInClassHotel = HotelsWithValuesSorted(numberOfHotelsWithValues - 1)
+                Else
+                    bestInClassRatio = RatiosSorted(0)
+                    bestInClassHotel = HotelsWithValuesSorted(0)
+                End If
+            Else
+                bestInClassRatio = 0
+                bestInClassHotel = ""
+            End If
+            
+            'Median Ratio
+            If numberOfHotelsWithValues > 1 Then
+                If (numberOfHotelsWithValues - 1) Mod 2 = 0 Then
+                    medianRatio = RatiosSorted((numberOfHotelsWithValues - 1) / 2)
+                Else
+                    medianRatio = (RatiosSorted(Int((numberOfHotelsWithValues - 1) / 2)) + RatiosSorted(Int((numberOfHotelsWithValues - 1) / 2) + 1)) / 2
+                End If
+            ElseIf numberOfHotelsWithValues = 1 Then
+                medianRatio = RatiosSorted(0)
+            Else
+                medianRatio = 0
+            End If
+            
+            
+            'Jahreszahl eintragen
+            Worksheets("Calculation").Cells(11, firstColOut + y).value = firstColIn + 2011 - years + y + 1
+            Worksheets("Calculation").Cells(19, firstColOut + y).value = firstColIn + 2011 - years + y + 1
+            Worksheets("Calculation").Cells(1, 11 + y * 2).value = firstColIn + 2011 - years + y + 1
+
+
+            
+            'Hotelwerte eintragen
+            If absolut Then
+                Worksheets("Calculation").Cells(row(0), firstColOut + y).value = Abs(hotelVar1(y))
+            Else
+                Worksheets("Calculation").Cells(row(0), firstColOut + y).value = hotelVar1(y)
+            End If
+            If Kennzahl1(0) <> Kennzahl2(0) Then
+                Worksheets("Calculation").Cells(row(1), firstColOut + y).value = hotelVar2(y)
+            End If
+            Worksheets("Calculation").Cells(row(2), firstColOut + y).value = hotelRatios(y)
+            
+            'Extremwerte eintragen
+            Worksheets("Calculation").Cells(row(3), firstColOut + y).value = bestInClassRatio
+            Worksheets("Calculation").Cells(row(4), firstColOut + y).value = bestInClassHotel
+
+            'Median eintragen
+            Worksheets("Calculation").Cells(row(5), firstColOut + y).value = medianRatio
+            
+            'Potenziale
+            If absolut = True Then
+                Worksheets("Calculation").Cells(row(6), firstColOut + y).value = potenzialProzent(bestInClassRatio, hotelRatios(y), positiv, variante)
+                Worksheets("Calculation").Cells(row(7), firstColOut + y).value = potenzialAbsolut(bestInClassRatio, hotelVar1(y), hotelVar2(y), positiv, variante)
+    
+                Worksheets("Calculation").Cells(row(8), firstColOut + y).value = potenzialProzent(medianRatio, hotelRatios(y), positiv, variante)
+                Worksheets("Calculation").Cells(row(9), firstColOut + y).value = potenzialAbsolut(medianRatio, hotelVar1(y), hotelVar2(y), positiv, variante)
+                
+                Worksheets("Calculation").Cells(row(10), firstColOut + y).value = potenzialProzent(averageYearRatio, hotelRatios(y), positiv, variante)
+                Worksheets("Calculation").Cells(row(11), firstColOut + y).value = potenzialAbsolut(averageYearRatio, hotelVar1(y), hotelVar2(y), positiv, variante)
+                
+                Worksheets("Calculation").Cells(row(12), firstColOut + y).value = potenzialProzent(bestYearRatio, hotelRatios(y), positiv, variante)
+                Worksheets("Calculation").Cells(row(13), firstColOut + y).value = potenzialAbsolut(bestYearRatio, hotelVar1(y), hotelVar2(y), positiv, variante)
+            End If
+            
+
+             'Ausgabe der sortierten Werte je nach positiv oder negativ
+            For i = 0 To numberOfHotelsWithValues - 1
+                If positiv = True Then
+                    counter = numberOfHotelsWithValues - 1 - i
+                Else
+                    counter = i
+                End If
+                 
+                 
+                Worksheets("Calculation").Cells(2 + i, 10).value = i + 1
+                
+                Worksheets("Calculation").Cells(2 + i, 11 + 2 * y).value = HotelsWithValuesSorted(counter)
+                If HotelsWithValuesSorted(counter) = selectedHotel Then
+                    Worksheets("Calculation").Cells(2 + i, 11 + 2 * y).Style = "Neutral"
+                    Worksheets("Calculation").Cells(2 + i, 12 + 2 * y).Style = "Neutral"
+                End If
+                Worksheets("Calculation").Cells(2 + i, 12 + 2 * y).value = RatiosSorted(counter)
+            Next i
+            
+            
+            
+            
+            
+            
+            'Formatierung
+            If Worksheets("Calculation").Cells(row(6), firstColOut + y).value > 0 Then
+                Worksheets("Calculation").Cells(row(6), firstColOut + y).Style = "Neutral"
+                Worksheets("Calculation").Cells(row(7), firstColOut + y).Style = "Neutral"
+            ElseIf Len(Worksheets("Calculation").Cells(row(6), firstColOut + y)) <> 0 And Worksheets("Calculation").Cells(row(6), firstColOut + y).value = 0 Then
+                Worksheets("Calculation").Cells(row(6), firstColOut + y).Style = "Gut"
+                Worksheets("Calculation").Cells(row(7), firstColOut + y).Style = "Gut"
+            End If
+            
+            If Worksheets("Calculation").Cells(row(8), firstColOut + y).value > 0 Then
+                Worksheets("Calculation").Cells(row(8), firstColOut + y).Style = "Neutral"
+                Worksheets("Calculation").Cells(row(9), firstColOut + y).Style = "Neutral"
+            ElseIf Len(Worksheets("Calculation").Cells(row(8), firstColOut + y)) <> 0 And Worksheets("Calculation").Cells(row(8), firstColOut + y).value = 0 Then
+                Worksheets("Calculation").Cells(row(8), firstColOut + y).Style = "Gut"
+                Worksheets("Calculation").Cells(row(9), firstColOut + y).Style = "Gut"
+            End If
+            
+            If Worksheets("Calculation").Cells(row(10), firstColOut + y).value > 0 Then
+                Worksheets("Calculation").Cells(row(10), firstColOut + y).Style = "Neutral"
+                Worksheets("Calculation").Cells(row(11), firstColOut + y).Style = "Neutral"
+            ElseIf Len(Worksheets("Calculation").Cells(row(10), firstColOut + y)) <> 0 And Worksheets("Calculation").Cells(row(10), firstColOut + y).value = 0 Then
+                Worksheets("Calculation").Cells(row(10), firstColOut + y).Style = "Gut"
+                Worksheets("Calculation").Cells(row(11), firstColOut + y).Style = "Gut"
+            End If
+            
+            If Worksheets("Calculation").Cells(row(12), firstColOut + y).value > 0 Then
+                Worksheets("Calculation").Cells(row(12), firstColOut + y).Style = "Neutral"
+                Worksheets("Calculation").Cells(row(13), firstColOut + y).Style = "Neutral"
+            ElseIf Len(Worksheets("Calculation").Cells(row(12), firstColOut + y)) <> 0 And Worksheets("Calculation").Cells(row(12), firstColOut + y).value = 0 Then
+                Worksheets("Calculation").Cells(row(12), firstColOut + y).Style = "Gut"
+                Worksheets("Calculation").Cells(row(13), firstColOut + y).Style = "Gut"
+            End If
+            
+        End If
+        
+   
+    Next y
+    
+     
+    
+     
+    
+    
+End Sub
+
+
