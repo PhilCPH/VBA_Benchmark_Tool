@@ -7,5 +7,5 @@ The numbers for each entitie were stored as fixed values. The coding was done in
 ![Benchmark](https://raw.githubusercontent.com/PhilCPH/VBA_Benchmark_Tool/main/pics/Benchmark_gif.gif)
 
 Disclaimer:
-The numbers used were scrambled and randomized.
+The original data was scrambled and randomized to comply with privacy requirements.
 
